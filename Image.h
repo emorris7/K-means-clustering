@@ -13,7 +13,7 @@ public:
     int width;
     int height;
     std::vector<Pixel *> *image;
-    std::vector<int> histogram;
+    std::vector<int>* histogram;
     int cluster;
 
     Image();
