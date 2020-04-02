@@ -6,17 +6,10 @@
 
 MRREMI007::Image::Image()
 {
-    image = new std::vector<Pixel *>;
 }
 
 MRREMI007::Image::~Image()
 {
-    // for (auto &&v : *image)
-    // {
-    //     delete[] v;
-    // }
-    delete image;
-    delete histogram;
 }
 
 MRREMI007::Image::Image(const std::string fileName, const int binSize)
@@ -25,7 +18,6 @@ MRREMI007::Image::Image(const std::string fileName, const int binSize)
 
 bool MRREMI007::Image::readFromFile(const std::string fileName)
 {
-    image = new std::vector<Pixel *>;
 
     std::ifstream inputFile(fileName, std::ios::binary);
     std::string output{};
@@ -52,19 +44,19 @@ bool MRREMI007::Image::readFromFile(const std::string fileName)
         unsigned char *memblock;
         //does it have to be remade each time?
         memblock = new unsigned char[width * 3];
-        image->resize(height);
         for (int i = 0; i < height; i++)
         {
             inputFile.read((char *)memblock, width * 3);
-            Pixel *array = new Pixel[width];
-            image->push_back(array);
+            // Pixel *array = new Pixel[width];
+            Pixel array[width];
+            // image->push_back(array);
+            image.push_back(array);
             // (*image)[i] = array;
             for (int j = 0, k = 0; j < width * 3, k < width; j += 3, k++)
             {
                 Pixel pixelVal(memblock[j], memblock[j + 1], memblock[j + 2]);
                 pixelVal.calcGrey();
                 array[k] = pixelVal;
-                //figure out array
             }
         }
         delete[] memblock;
@@ -77,16 +69,16 @@ bool MRREMI007::Image::readFromFile(const std::string fileName)
 
 bool MRREMI007::Image::makeHistogram(const int binSize)
 {
-    if (image->size() == 0)
+    if (image.size() == 0)
     {
         return false;
     }
     int size = 256 / binSize;
-    histogram = new std::vector<int>;
     //zero the array to the appropriate size
     for (int i = 0; i < size; i++)
     {
-        histogram->push_back(0);
+        // histogram->push_back(0);
+        histogram.push_back(0);
     }
 
     //create the histogram
@@ -94,7 +86,8 @@ bool MRREMI007::Image::makeHistogram(const int binSize)
     {
         for (int j = 0; j < width; j++)
         {
-            ((*histogram)[int(image[i][j]->grey)/binSize])++;
+            // ((*histogram)[int(image[i][j]->grey)/binSize])++;
+            (histogram[int(image[i][j].grey) / binSize])++;
         }
     }
     return true;

@@ -12,8 +12,8 @@ public:
     std::string imageName;
     int width;
     int height;
-    std::vector<Pixel *> *image;
-    std::vector<int>* histogram;
+    std::vector<Pixel[]> image;
+    std::vector<int> histogram;
     int cluster;
 
     Image();
