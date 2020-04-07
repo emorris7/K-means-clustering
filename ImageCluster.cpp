@@ -121,18 +121,19 @@ void MRREMI007::ImageCluster::makeClusters()
             for (auto &i : images)
             {
                 float minDistance{-1};
+                int originalCluster{i.cluster};
                 for (int j = 0; j < centroids.size(); j++)
                 {
                     float distanceFrom = distance(i, centroids[j]);
-                    if (distanceFrom < minDistance)
+                    if (minDistance < 0 || distanceFrom < minDistance)
                     {
                         minDistance = distanceFrom;
-                        if (i.cluster != j)
-                        {
-                            i.cluster = j;
-                            numChanges++;
-                        }
+                        i.cluster = j;
                     }
+                }
+                if (i.cluster != originalCluster)
+                {
+                    numChanges++;
                 }
             }
         }
