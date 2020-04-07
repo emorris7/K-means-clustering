@@ -1,3 +1,5 @@
+#include <random>
+#include <functional>
 #include "ImageCluster.h"
 #include "Image.h"
 #include "dirent.h"
@@ -73,10 +75,13 @@ void MRREMI007::ImageCluster::makeCentroid(const int cluster)
             }
         }
     }
-    //get the mean
-    for (int k = 0; k < size; k++)
+    //get the mean, must check counter as depending on intialization, might be no images assigned to cluster
+    if (counter > 0)
     {
-        cent[k] = cent[k] / counter;
+        for (int k = 0; k < size; k++)
+        {
+            cent[k] = cent[k] / counter;
+        }
     }
     //if centroid already exists for the cluster
     if (centroids.size() > cluster)
@@ -88,5 +93,52 @@ void MRREMI007::ImageCluster::makeCentroid(const int cluster)
     {
         std::cout << "Making centroid: " << cluster << std::endl;
         centroids.push_back(cent);
+    }
+}
+
+void MRREMI007::ImageCluster::makeClusters()
+{
+    if (numClusters > 0)
+    {
+        std::default_random_engine ranEngine;
+        std::uniform_int_distribution<int> ranGenerator(0, numClusters - 1);
+        auto randCLuster = std::bind(ranGenerator, ranEngine);
+        //assign random cluster to each image for forgy intialization
+        for (auto &i : images)
+        {
+            i.cluster = randCLuster();
+        }
+        int numChanges{1};
+        while (numChanges != 0)
+        {
+            numChanges = 0;
+            //make all the centroids for the clusters
+            for (int i = 0; i < numClusters; i++)
+            {
+                makeCentroid(i);
+            }
+            //calculate distance between all images from all centroids and assign cluster numbers accordingly
+            for (auto &i : images)
+            {
+                float minDistance{-1};
+                for (int j = 0; j < centroids.size(); j++)
+                {
+                    float distanceFrom = distance(i, centroids[j]);
+                    if (distanceFrom < minDistance)
+                    {
+                        minDistance = distanceFrom;
+                        if (i.cluster != j)
+                        {
+                            i.cluster = j;
+                            numChanges++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        std::cout << "Cannot make clusters. Invalid number of cluster: " << numClusters << std::endl;
     }
 }

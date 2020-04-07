@@ -30,6 +30,7 @@ public:
     void printToFile(const std::string fileName);
 
     friend std::ostream &operator<<(std::ostream &os, const ImageCluster &cluster);
+
 };
 
 std::ostream &operator<<(std::ostream &os, const ImageCluster &cluster);
