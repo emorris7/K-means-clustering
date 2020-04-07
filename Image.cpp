@@ -8,23 +8,82 @@ MRREMI007::Image::Image()
 {
 }
 
-MRREMI007::Image::~Image()
-{
-    for (int i = 0; i < image.size(); i++)
-    {
-        delete[] image[i];
-    }
-}
+MRREMI007::Image::~Image() {}
 
 MRREMI007::Image::Image(const std::string fileName, const int binSize)
 {
-    cluster = 0;
+    cluster = -1;
     imageName = fileName;
     readFromFile(fileName);
     makeHistogram(binSize);
 }
 
-bool MRREMI007::Image::readFromFile(const std::string fileName)
+//copy constructor
+MRREMI007::Image::Image(const Image &other)
+{
+    imageName = other.imageName;
+    width = other.width;
+    height = other.height;
+    histogram = other.histogram;
+    cluster = other.cluster;
+
+    for (auto &vec : other.image)
+    {
+        image.push_back(vec);
+    }
+}
+
+//copy assignment
+MRREMI007::Image &MRREMI007::Image::operator=(const Image &other)
+{
+    imageName = other.imageName;
+    width = other.width;
+    height = other.height;
+    histogram = other.histogram;
+    cluster = other.cluster;
+
+    for (auto &vec : other.image)
+    {
+        image.push_back(vec);
+    }
+    return *this;
+}
+
+//move constructor
+MRREMI007::Image::Image(Image &&other)
+{
+    imageName = other.imageName;
+    width = other.width;
+    height = other.height;
+    histogram = other.histogram;
+    cluster = other.cluster;
+
+    for (auto &vec : other.image)
+    {
+        image.push_back(vec);
+    }
+}
+
+//move assignment
+MRREMI007::Image &MRREMI007::Image::operator=(Image &&other)
+{
+    if (this != &other)
+    {
+        imageName = other.imageName;
+        width = other.width;
+        height = other.height;
+        histogram = other.histogram;
+        cluster = other.cluster;
+
+        for (auto &vec : other.image)
+        {
+            image.push_back(vec);
+        }
+    }
+    return *this;
+}
+
+void MRREMI007::Image::readFromFile(const std::string fileName)
 {
 
     std::ifstream inputFile(fileName, std::ios::binary);
@@ -38,7 +97,7 @@ bool MRREMI007::Image::readFromFile(const std::string fileName)
         //remove comment lines
         while (output.front() == '#')
         {
-            std::cout << output << std::endl;
+            // std::cout << output << std::endl;
             std::getline(inputFile, output);
         }
         //output will now have width and height
@@ -55,15 +114,15 @@ bool MRREMI007::Image::readFromFile(const std::string fileName)
         for (int i = 0; i < height; i++)
         {
             inputFile.read((char *)memblock, width * 3);
-            Pixel *array = new Pixel[width];
-            image.push_back(array);
+            std::vector<Pixel> array;
             for (int j = 0, k = 0; j < width * 3, k < width; j += 3, k++)
             {
                 Pixel pixelVal(memblock[j], memblock[j + 1], memblock[j + 2]);
-                image[i][k] = pixelVal;
+                array.push_back(pixelVal);
                 // std::cout << "i " << i << " k " << k << std::endl;
                 // std::cout << image[i][k] << std::endl;
             }
+            image.push_back(array);
             // if (i > 1)
             // {
             //     std::cout << "<<<<<<<<<<<<PREVIOUS ROW <<<<<<<<<< " << i - 2 << std::endl;
@@ -75,7 +134,6 @@ bool MRREMI007::Image::readFromFile(const std::string fileName)
             //     }
             //     std::cout << "<<<<<<<<<<<<END<<<<<<<<<< " << std::endl;
             // }
-            // delete[] memblock;
         }
         delete[] memblock;
 
@@ -90,36 +148,41 @@ bool MRREMI007::Image::readFromFile(const std::string fileName)
         // }
 
         inputFile.close();
-        return true;
     }
-    return false;
+    else
+    {
+        std::cout << "Failed to open file: " << fileName << std::endl;
+    }
 }
 
-bool MRREMI007::Image::makeHistogram(const int binSize)
+void MRREMI007::Image::makeHistogram(const int binSize)
 {
-    if (image.size() == 0)
+    if (image.size() == 0 || image.size() != height)
     {
-        return false;
+        std::cout << "Cannot make histogram: no image loaded" << std::endl;
     }
-    int size = 256 / binSize;
-    //zero the array to the appropriate size
-    for (int i = 0; i < size; i++)
+    else
     {
-        histogram.push_back(0);
-    }
-
-    //create the histogram
-    for (int i = 0; i < height; i++)
-    {
-        for (int j = 0; j < width; j++)
+        int size = 256 / binSize;
+        //zero the array to the appropriate size
+        for (int i = 0; i < size; i++)
         {
-            (histogram[int(image[i][j].grey) / binSize])++;
+            histogram.push_back(0);
+        }
+
+        //create the histogram
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                (histogram[int(image[i][j].grey) / binSize])++;
+            }
         }
     }
-    return true;
 }
 
-std::ostream& MRREMI007::operator<<(std::ostream& os, const Image image){
+std::ostream &MRREMI007::operator<<(std::ostream &os, const Image image)
+{
     os << image.imageName;
     return os;
 }

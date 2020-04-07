@@ -15,6 +15,48 @@ MRREMI007::Pixel::Pixel(const unsigned char r, const unsigned char g, const unsi
     blue = b;
     calcGrey();
 }
+MRREMI007::Pixel::~Pixel() {}
+
+//copy constructor
+MRREMI007::Pixel::Pixel(const Pixel &other)
+{
+    red = other.red;
+    green = other.green;
+    blue = other.blue;
+    grey = other.grey;
+}
+
+//copy assignment
+MRREMI007::Pixel &MRREMI007::Pixel::operator=(const Pixel &other)
+{
+    red = other.red;
+    green = other.green;
+    blue = other.blue;
+    grey = other.grey;
+    return *this;
+}
+
+//move constructor
+MRREMI007::Pixel::Pixel(Pixel &&other)
+{
+    red = other.red;
+    green = other.green;
+    blue = other.blue;
+    grey = other.grey;
+}
+
+//move assignment
+MRREMI007::Pixel &MRREMI007::Pixel::operator=(Pixel &&other)
+{
+    if (this != &other)
+    {
+        red = other.red;
+        green = other.green;
+        blue = other.blue;
+        grey = other.grey;
+    }
+    return *this;
+}
 
 void MRREMI007::Pixel::calcGrey()
 {

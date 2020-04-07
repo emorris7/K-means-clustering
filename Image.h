@@ -12,23 +12,35 @@ public:
     std::string imageName;
     int width;
     int height;
-    std::vector<Pixel*> image;
+    std::vector<std::vector<Pixel>> image;
     std::vector<int> histogram;
     int cluster;
 
     Image();
-    
+
     ~Image();
 
     Image(const std::string fileName, const int binSize);
 
-    bool readFromFile(const std::string fileName);
+    //copy constructor
+    Image(const Image &other);
 
-    bool makeHistogram(const int binSize);
+    //copy assignment
+    Image &operator=(const Image &other);
 
-    friend std::ostream& operator<<(std::ostream& os, const Image image);
+    //move constructor
+    Image(Image &&other);
+
+    //move assignment
+    Image &operator=(Image &&other);
+
+    void readFromFile(const std::string fileName);
+
+    void makeHistogram(const int binSize);
+
+    friend std::ostream &operator<<(std::ostream &os, const Image image);
 };
 
-std::ostream& operator<<(std::ostream& os, const Image image);
+std::ostream &operator<<(std::ostream &os, const Image image);
 } // namespace MRREMI007
 #endif
