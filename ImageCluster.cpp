@@ -178,20 +178,21 @@ std::ostream &MRREMI007::operator<<(std::ostream &os, const ImageCluster &imageC
     for (int i = 0; i < imageCluster.numClusters; i++)
     {
         os << "Cluster " << i << ": ";
+        bool first{true};
         for (int j = 0; j < imageCluster.images.size(); j++)
         {
-            if (j == imageCluster.images.size() - 1 && i != imageCluster.numClusters - 1)
-            {
-                os << imageCluster.images[j] << "\n";
-                
-            }
-            else if (j == imageCluster.images.size() - 1 && i == imageCluster.numClusters - 1)
+            if (imageCluster.images[j].cluster == i && first)
             {
                 os << imageCluster.images[j];
+                first = false;
             }
-            else
+            else if (imageCluster.images[j].cluster == i)
             {
-                os << imageCluster.images[j] << ", ";
+                os << ", " << imageCluster.images[j];
+            }
+            if (j == imageCluster.images.size() - 1)
+            {
+                os << "\n";
             }
         }
     }
