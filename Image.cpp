@@ -10,10 +10,10 @@ MRREMI007::Image::Image()
 
 MRREMI007::Image::~Image() {}
 
-MRREMI007::Image::Image(const std::string fileName, const int binSize)
+MRREMI007::Image::Image(const std::string fileName, const std::string image, const int binSize)
 {
     cluster = -1;
-    imageName = fileName;
+    imageName = image;
     readFromFile(fileName);
     makeHistogram(binSize);
 }

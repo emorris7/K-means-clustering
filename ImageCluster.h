@@ -31,6 +31,8 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const ImageCluster &cluster);
 
+private:
+    std::vector<int> randomClusters();
 };
 
 std::ostream &operator<<(std::ostream &os, const ImageCluster &cluster);

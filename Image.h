@@ -20,7 +20,7 @@ public:
 
     ~Image();
 
-    Image(const std::string fileName, const int binSize);
+    Image(const std::string fileName, const std::string image, const int binSize);
 
     //copy constructor
     Image(const Image &other);

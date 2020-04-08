@@ -1,9 +1,10 @@
-#include <random>
-#include <functional>
+#include <algorithm>
 #include "ImageCluster.h"
 #include "Image.h"
 #include "dirent.h"
 #include "math.h"
+#include <random>
+#include <functional>
 
 MRREMI007::ImageCluster::ImageCluster() {}
 
@@ -23,7 +24,7 @@ MRREMI007::ImageCluster::ImageCluster(const std::string directoryName, const int
         if (fileName.front() != '.')
         {
             fileName = directoryName + "/" + file->d_name;
-            Image imageFile(fileName, binSize);
+            Image imageFile(fileName, file->d_name, binSize);
             images.push_back(imageFile);
         }
         else
@@ -31,6 +32,7 @@ MRREMI007::ImageCluster::ImageCluster(const std::string directoryName, const int
             std::cout << "Directory" << std::endl;
         }
     }
+    makeClusters();
 }
 
 MRREMI007::ImageCluster::~ImageCluster() {}
@@ -91,8 +93,9 @@ void MRREMI007::ImageCluster::makeCentroid(const int cluster)
     //else just starting the algorithm, must add intial centroids to array
     else
     {
-        std::cout << "Making centroid: " << cluster << std::endl;
-        centroids.push_back(cent);
+        std::cout << "Error: Centroid" << cluster << " not yet initialized" << std::endl;
+        // std::cout << "Making centroid: " << cluster << std::endl;
+        // centroids.push_back(cent);
     }
 }
 
@@ -100,23 +103,17 @@ void MRREMI007::ImageCluster::makeClusters()
 {
     if (numClusters > 0)
     {
-        std::default_random_engine ranEngine;
-        std::uniform_int_distribution<int> ranGenerator(0, numClusters - 1);
-        auto randCLuster = std::bind(ranGenerator, ranEngine);
-        //assign random cluster to each image for forgy intialization
-        for (auto &i : images)
+        std::vector<int> randClusters = randomClusters();
+        //assign the histograms of the randomly selected images as centroids for forgy initialization
+        for (auto &i : randClusters)
         {
-            i.cluster = randCLuster();
+            centroids.push_back(images[i].histogram);
         }
+
         int numChanges{1};
         while (numChanges != 0)
         {
             numChanges = 0;
-            //make all the centroids for the clusters
-            for (int i = 0; i < numClusters; i++)
-            {
-                makeCentroid(i);
-            }
             //calculate distance between all images from all centroids and assign cluster numbers accordingly
             for (auto &i : images)
             {
@@ -136,10 +133,67 @@ void MRREMI007::ImageCluster::makeClusters()
                     numChanges++;
                 }
             }
+            //make all the centroids for the clusters for next iteration, if there is going to be another iteration
+            if (numChanges != 0)
+            {
+                for (int i = 0; i < numClusters; i++)
+                {
+                    makeCentroid(i);
+                }
+            }
         }
     }
     else
     {
         std::cout << "Cannot make clusters. Invalid number of cluster: " << numClusters << std::endl;
     }
+}
+
+std::vector<int> MRREMI007::ImageCluster::randomClusters()
+{
+    std::vector<int> randomClusters;
+    std::srand(time(NULL));
+    while (randomClusters.size() < numClusters)
+    {
+        int i = rand() % images.size();
+        //check if the number of clusters is less than the number of images, else must allow duplicates
+        if (randomClusters.size() < images.size())
+        {
+            if (std::find(randomClusters.begin(), randomClusters.end(), i) == randomClusters.end())
+            {
+                randomClusters.push_back(i);
+            }
+        }
+        else
+        {
+            randomClusters.push_back(i);
+        }
+    }
+    return randomClusters;
+}
+
+std::ostream &MRREMI007::operator<<(std::ostream &os, const ImageCluster &imageCluster)
+{
+    //assuming k clusters, numbered from 0 to k-1
+    for (int i = 0; i < imageCluster.numClusters; i++)
+    {
+        os << "Cluster " << i << ": ";
+        for (int j = 0; j < imageCluster.images.size(); j++)
+        {
+            if (j == imageCluster.images.size() - 1 && i != imageCluster.numClusters - 1)
+            {
+                os << imageCluster.images[j] << "\n";
+                
+            }
+            else if (j == imageCluster.images.size() - 1 && i == imageCluster.numClusters - 1)
+            {
+                os << imageCluster.images[j];
+            }
+            else
+            {
+                os << imageCluster.images[j] << ", ";
+            }
+        }
+    }
+    return os;
 }
