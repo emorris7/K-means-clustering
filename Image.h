@@ -38,6 +38,8 @@ public:
 
     void makeHistogram(const int binSize);
 
+    void makeHistogramColour(const int binSize);
+
     friend std::ostream &operator<<(std::ostream &os, const Image image);
 };
 

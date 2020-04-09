@@ -163,7 +163,16 @@ void MRREMI007::Image::makeHistogram(const int binSize)
     }
     else
     {
-        int size = 256 / binSize;
+        int size{};
+        //check if binsize is an even divisor of the number of values for an usigned char
+        if (256 % binSize != 0)
+        {
+            size = 256 / binSize + 1;
+        }
+        else
+        {
+            size = 256 / binSize;
+        }
         //zero the array to the appropriate size
         for (int i = 0; i < size; i++)
         {
@@ -176,6 +185,46 @@ void MRREMI007::Image::makeHistogram(const int binSize)
             for (int j = 0; j < width; j++)
             {
                 (histogram[int(image[i][j].grey) / binSize])++;
+            }
+        }
+    }
+}
+
+void MRREMI007::Image::makeHistogramColour(const int binSize)
+{
+    if (image.size() == 0 || image.size() != height)
+    {
+        std::cout << "Cannot make histogram: no image loaded" << std::endl;
+    }
+    else
+    {
+        int size{};
+        //check if binsize is an even divisor of the number of values for an usigned char
+        if (256 % binSize != 0)
+        {
+            size = 256 / binSize + 1;
+        }
+        else
+        {
+            size = 256 / binSize;
+        }
+        //zero the array to the appropriate size, 3 times the size of the necessary array to store red, green and blue histograms back to back
+        for (int i = 0; i < size * 3; i++)
+        {
+            histogram.push_back(0);
+        }
+
+        //create the histogram
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                //increment red
+                (histogram[int(image[i][j].red) / binSize])++;
+                //increment green
+                (histogram[(int(image[i][j].green) / binSize) + size])++;
+                //increment blue
+                (histogram[(int(image[i][j].blue) / binSize) + size * 2])++;
             }
         }
     }
