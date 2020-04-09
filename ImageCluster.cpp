@@ -3,8 +3,10 @@
 #include "Image.h"
 #include "dirent.h"
 #include "math.h"
-#include <random>
-#include <functional>
+#include <iostream>
+#include <fstream>
+// #include <random>
+// #include <functional>
 
 MRREMI007::ImageCluster::ImageCluster() {}
 
@@ -27,10 +29,10 @@ MRREMI007::ImageCluster::ImageCluster(const std::string directoryName, const int
             Image imageFile(fileName, file->d_name, binSize);
             images.push_back(imageFile);
         }
-        else
-        {
-            std::cout << "Directory" << std::endl;
-        }
+        // else
+        // {
+        //     std::cout << "Directory" << std::endl;
+        // }
     }
     makeClusters();
 }
@@ -170,6 +172,21 @@ std::vector<int> MRREMI007::ImageCluster::randomClusters()
         }
     }
     return randomClusters;
+}
+
+void MRREMI007::ImageCluster::printToFile(const std::string fileName)
+{
+    std::ofstream file;
+    file.open(fileName);
+    if (file.is_open())
+    {
+        file << *this;
+        file.close();
+    }
+    else
+    {
+        std::cout << "Error: Unable to open " << fileName << std::endl;
+    }
 }
 
 std::ostream &MRREMI007::operator<<(std::ostream &os, const ImageCluster &imageCluster)
