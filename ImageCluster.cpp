@@ -10,7 +10,7 @@
 
 MRREMI007::ImageCluster::ImageCluster() {}
 
-MRREMI007::ImageCluster::ImageCluster(const std::string directoryName, const int clusters, const int bin)
+MRREMI007::ImageCluster::ImageCluster(const std::string directoryName, const int clusters, const int bin, const bool colourHist)
 {
     numClusters = clusters;
     binSize = bin;
@@ -22,19 +22,16 @@ MRREMI007::ImageCluster::ImageCluster(const std::string directoryName, const int
     {
 
         std::string fileName = file->d_name;
-        //directories withint directories
+        //directories with in directories
         if (fileName.front() != '.')
         {
             fileName = directoryName + "/" + file->d_name;
-            Image imageFile(fileName, file->d_name, binSize);
+            Image imageFile(fileName, file->d_name, binSize, colourHist);
             images.push_back(imageFile);
         }
-        // else
-        // {
-        //     std::cout << "Directory" << std::endl;
-        // }
     }
-    makeClusters();
+    //whether clustering shoudl be done using greyscale or colour histograms
+    makeClusters(colourHist);
 }
 
 MRREMI007::ImageCluster::~ImageCluster() {}
@@ -54,54 +51,83 @@ float MRREMI007::ImageCluster::distance(const Image &image, const std::vector<in
     return distance;
 }
 
+float MRREMI007::ImageCluster::distanceColour(const Image &image, const std::vector<int> &centroid)
+{
+    if (image.histogram.size() != centroid.size())
+    {
+        return -1;
+    }
+    float totalR{};
+    float totalG{};
+    float totalB{};
+    int singleSize = centroid.size() / 3;
+    //calculate euclidean distance between the red, green and blue histograms respectively and then add them for total distance
+    for (int i = 0; i < singleSize; i++)
+    {
+
+        totalR += std::pow(image.histogram[i] - centroid[i], 2);
+        totalG += std::pow(image.histogram[i + singleSize] - centroid[i + singleSize], 2);
+        totalB += std::pow(image.histogram[i + singleSize * 2] - centroid[i + singleSize * 2], 2);
+    }
+    float distance = std::sqrt(totalR) + std::sqrt(totalG) + std::sqrt(totalB);
+    return distance;
+}
+
 void MRREMI007::ImageCluster::makeCentroid(const int cluster)
 {
-    std::vector<int> cent;
-    int size = 256 / binSize;
-    //initialize a zero vector
-    for (int i = 0; i < size; i++)
+    if (images.size() == 0)
     {
-        cent.push_back(0);
+        std::cout << "Error: No images loaded to make centroids with" << std::endl;
     }
-    int counter{};
-    //total all the histograms for the images in this cluster
-    for (auto &image : images)
+    else
     {
-        for (int j = 0; j < size; j++)
+        std::vector<int> cent;
+        //assuming all images have the same histogram dimensions
+        int size = images[0].histogram.size();
+        //initialize a zero vector
+        for (int i = 0; i < size; i++)
         {
-            if (image.cluster == cluster)
+            cent.push_back(0);
+        }
+        int counter{};
+        //total all the histograms for the images in this cluster
+        for (auto &image : images)
+        {
+            for (int j = 0; j < size; j++)
             {
-                cent[j] += image.histogram[j];
-                if (j == 0)
+                if (image.cluster == cluster)
                 {
-                    counter++;
+                    cent[j] += image.histogram[j];
+                    if (j == 0)
+                    {
+                        counter++;
+                    }
                 }
             }
         }
-    }
-    //get the mean, must check counter as depending on intialization, might be no images assigned to cluster
-    if (counter > 0)
-    {
-        for (int k = 0; k < size; k++)
+        //get the mean, must check counter as depending on intialization, might be no images assigned to cluster
+        if (counter > 0)
         {
-            cent[k] = cent[k] / counter;
+            for (int k = 0; k < size; k++)
+            {
+                cent[k] = cent[k] / counter;
+            }
         }
-    }
-    //if centroid already exists for the cluster
-    if (centroids.size() > cluster)
-    {
-        centroids[cluster] = cent;
-    }
-    //else just starting the algorithm, must add intial centroids to array
-    else
-    {
-        std::cout << "Error: Centroid" << cluster << " not yet initialized" << std::endl;
-        // std::cout << "Making centroid: " << cluster << std::endl;
-        // centroids.push_back(cent);
+        //if centroid already exists for the cluster
+        if (centroids.size() > cluster)
+        {
+            centroids[cluster] = cent;
+        }
+        else
+        {
+            std::cout << "Error: Centroid " << cluster << " not yet initialized" << std::endl;
+            // std::cout << "Making centroid: " << cluster << std::endl;
+            // centroids.push_back(cent);
+        }
     }
 }
 
-void MRREMI007::ImageCluster::makeClusters()
+void MRREMI007::ImageCluster::makeClusters(const bool colourHist)
 {
     if (numClusters > 0)
     {
@@ -123,7 +149,15 @@ void MRREMI007::ImageCluster::makeClusters()
                 int originalCluster{i.cluster};
                 for (int j = 0; j < centroids.size(); j++)
                 {
-                    float distanceFrom = distance(i, centroids[j]);
+                    float distanceFrom{};
+                    if (colourHist)
+                    {
+                        distanceFrom = distanceColour(i, centroids[j]);
+                    }
+                    else
+                    {
+                        distanceFrom = distance(i, centroids[j]);
+                    }
                     if (minDistance < 0 || distanceFrom < minDistance)
                     {
                         minDistance = distanceFrom;

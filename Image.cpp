@@ -10,12 +10,19 @@ MRREMI007::Image::Image()
 
 MRREMI007::Image::~Image() {}
 
-MRREMI007::Image::Image(const std::string fileName, const std::string image, const int binSize)
+MRREMI007::Image::Image(const std::string fileName, const std::string image, const int binSize, const bool colourHist)
 {
     cluster = -1;
     imageName = image;
     readFromFile(fileName);
-    makeHistogram(binSize);
+    if (colourHist)
+    {
+        makeHistogramColour(binSize);
+    }
+    else
+    {
+        makeHistogram(binSize);
+    }
 }
 
 //copy constructor
