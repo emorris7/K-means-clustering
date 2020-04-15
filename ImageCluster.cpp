@@ -106,24 +106,25 @@ void MRREMI007::ImageCluster::makeCentroid(const int cluster)
             }
         }
         //get the mean, must check counter as depending on intialization, might be no images assigned to cluster
-        if (counter > 0)
+        if (counter > 0 && centroids.size() > cluster)
         {
             for (int k = 0; k < size; k++)
             {
                 cent[k] = cent[k] / counter;
             }
-        }
-        //if centroid already exists for the cluster
-        if (centroids.size() > cluster)
-        {
             centroids[cluster] = cent;
         }
-        else
-        {
-            std::cout << "Error: Centroid " << cluster << " not yet initialized" << std::endl;
-            // std::cout << "Making centroid: " << cluster << std::endl;
-            // centroids.push_back(cent);
-        }
+        // //if centroid already exists for the cluster CHANGED
+        // if (centroids.size() > cluster )
+        // {
+        //     centroids[cluster] = cent;
+        // }
+        // else
+        // {
+        //     std::cout << "Error: Centroid " << cluster << " not yet initialized" << std::endl;
+        //     // std::cout << "Making centroid: " << cluster << std::endl;
+        //     // centroids.push_back(cent);
+        // }
     }
 }
 
