@@ -15,7 +15,8 @@ public:
     std::vector<std::vector<Pixel>> image;
     std::vector<int> histogram;
     int cluster;
-
+    int distance;
+   
     Image();
 
     ~Image();

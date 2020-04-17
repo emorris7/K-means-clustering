@@ -1,19 +1,16 @@
 #include <algorithm>
-#include "ImageCluster.h"
-#include "Image.h"
+#include "ImageClusterPixel.h"
+#include "ImagePixel.h"
 #include "dirent.h"
 #include "math.h"
 #include <iostream>
 #include <fstream>
-// #include <random>
-// #include <functional>
 
-MRREMI007::ImageCluster::ImageCluster() {}
+MRREMI007::ImageClusterPixel::ImageClusterPixel() {}
 
-MRREMI007::ImageCluster::ImageCluster(const std::string directoryName, const int clusters, const int bin, const bool colourHist)
+MRREMI007::ImageClusterPixel::ImageClusterPixel(const std::string directoryName, const int clusters)
 {
     numClusters = clusters;
-    binSize = bin;
     //go through directory and make image objects
     DIR *directory;
     dirent *file;
@@ -26,31 +23,23 @@ MRREMI007::ImageCluster::ImageCluster(const std::string directoryName, const int
         if (fileName.front() != '.')
         {
             fileName = directoryName + "/" + file->d_name;
-            Image imageFile(fileName, file->d_name, binSize, colourHist);
+            ImagePixel imageFile(fileName, file->d_name);
             images.push_back(imageFile);
         }
     }
     makeClusters();
 }
 
-MRREMI007::ImageCluster::~ImageCluster() {}
+MRREMI007::ImageClusterPixel::~ImageClusterPixel() {}
 
-float MRREMI007::ImageCluster::distance(const Image &image, const std::vector<int> &centroid)
+float MRREMI007::ImageClusterPixel::distance(const ImagePixel &image, const Pixel &centroid)
 {
-    if (image.histogram.size() != centroid.size())
-    {
-        return -1;
-    }
-    float total{};
-    for (int i = 0; i < centroid.size(); i++)
-    {
-        total += std::pow(image.histogram[i] - centroid[i], 2);
-    }
+    float total = std::pow(image.averagePixel.red - centroid.red, 2) + std::pow(image.averagePixel.green - centroid.green, 2) + std::pow(image.averagePixel.blue - centroid.blue, 2);
     float distance = std::sqrt(total);
     return distance;
 }
 
-void MRREMI007::ImageCluster::makeCentroid(const int cluster)
+void MRREMI007::ImageClusterPixel::makeCentroid(const int cluster)
 {
     if (images.size() == 0)
     {
@@ -58,63 +47,39 @@ void MRREMI007::ImageCluster::makeCentroid(const int cluster)
     }
     else
     {
-        std::vector<int> cent;
-        //assuming all images have the same histogram dimensions
-        int size = images[0].histogram.size();
-        //initialize a zero vector
-        for (int i = 0; i < size; i++)
-        {
-            cent.push_back(0);
-        }
+        double red{};
+        double green{};
+        double blue{};
         int counter{};
-        //total all the histograms for the images in this cluster
-        for (auto &image : images)
+        for (auto &i : images)
         {
-            for (int j = 0; j < size; j++)
+            if (i.cluster == cluster)
             {
-                if (image.cluster == cluster)
-                {
-                    cent[j] += image.histogram[j];
-                    if (j == 0)
-                    {
-                        counter++;
-                    }
-                }
+                red += i.averagePixel.red;
+                green += i.averagePixel.green;
+                blue += i.averagePixel.blue;
+                counter++;
             }
         }
-        //get the mean, must check counter as depending on intialization, might be no images assigned to cluster
-        if (counter > 0 && centroids.size() > cluster)
+
+        //check if there are any images in the cluster
+        if (counter > 0 and cluster < centroids.size())
         {
-            for (int k = 0; k < size; k++)
-            {
-                cent[k] = cent[k] / counter;
-            }
-            centroids[cluster] = cent;
+            unsigned char rVal = red / counter;
+            unsigned char gVal = green / counter;
+            unsigned char bVal = blue / counter;
+            centroids[cluster].red = rVal;
+            centroids[cluster].green = gVal;
+            centroids[cluster].blue = bVal;
         }
-        // //if centroid already exists for the cluster CHANGED
-        // if (centroids.size() > cluster )
-        // {
-        //     centroids[cluster] = cent;
-        // }
-        // else
-        // {
-        //     std::cout << "Error: Centroid " << cluster << " not yet initialized" << std::endl;
-        //     // std::cout << "Making centroid: " << cluster << std::endl;
-        //     // centroids.push_back(cent);
-        // }
     }
 }
 
-void MRREMI007::ImageCluster::makeClusters()
+void MRREMI007::ImageClusterPixel::makeClusters()
 {
     if (numClusters > 0)
     {
-        // std::vector<int> randClusters = randomClusters();
-        // //assign the histograms of the randomly selected images as centroids for forgy initialization
-        // for (auto &i : randClusters)
-        // {
-        //     centroids.push_back(images[i].histogram);
-        // }
+        //k++
         initializeCentroids();
 
         int numChanges{1};
@@ -156,12 +121,14 @@ void MRREMI007::ImageCluster::makeClusters()
     }
 }
 
-void MRREMI007::ImageCluster::initializeCentroids(){
-    //choose random initial cluster
+//kmeans++ intialization
+void MRREMI007::ImageClusterPixel::initializeCentroids()
+{
+    //choose random intial cluster
     std::srand(time(NULL));
     int i = rand() % images.size();
     //assign intial centroid
-    centroids.push_back(images[i].histogram);
+    centroids.push_back(images[i].averagePixel);
 
     //calculate other centroids
     while (centroids.size() < numClusters)
@@ -184,7 +151,7 @@ void MRREMI007::ImageCluster::initializeCentroids(){
 
         //find the image with the maximum minimum distance
         float maxDist{-1};
-        Image newCentroid;
+        ImagePixel newCentroid;
         for (auto &i : images)
         {
             if (i.distance > maxDist)
@@ -194,34 +161,11 @@ void MRREMI007::ImageCluster::initializeCentroids(){
             }
         }
         //the average pixel of this image is now the new centroid
-        centroids.push_back(newCentroid.histogram);
+        centroids.push_back(newCentroid.averagePixel);
     }
-};
+}
 
-// std::vector<int> MRREMI007::ImageCluster::randomClusters()
-// {
-//     std::vector<int> randomClusters;
-//     std::srand(time(NULL));
-//     while (randomClusters.size() < numClusters)
-//     {
-//         int i = rand() % images.size();
-//         //check if the number of clusters is less than the number of images, else must allow duplicates
-//         if (randomClusters.size() < images.size())
-//         {
-//             if (std::find(randomClusters.begin(), randomClusters.end(), i) == randomClusters.end())
-//             {
-//                 randomClusters.push_back(i);
-//             }
-//         }
-//         else
-//         {
-//             randomClusters.push_back(i);
-//         }
-//     }
-//     return randomClusters;
-// }
-
-void MRREMI007::ImageCluster::printToFile(const std::string fileName)
+void MRREMI007::ImageClusterPixel::printToFile(const std::string fileName)
 {
     std::ofstream file;
     file.open(fileName);
@@ -236,7 +180,7 @@ void MRREMI007::ImageCluster::printToFile(const std::string fileName)
     }
 }
 
-std::ostream &MRREMI007::operator<<(std::ostream &os, const ImageCluster &imageCluster)
+std::ostream &MRREMI007::operator<<(std::ostream &os, const ImageClusterPixel &imageCluster)
 {
     //assuming k clusters, numbered from 0 to k-1
     for (int i = 0; i < imageCluster.numClusters; i++)

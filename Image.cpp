@@ -13,6 +13,7 @@ MRREMI007::Image::~Image() {}
 MRREMI007::Image::Image(const std::string fileName, const std::string image, const int binSize, const bool colourHist)
 {
     cluster = -1;
+    distance = -1;
     imageName = image;
     readFromFile(fileName);
     if (colourHist)
@@ -31,6 +32,7 @@ MRREMI007::Image::Image(const Image &other)
     imageName = other.imageName;
     width = other.width;
     height = other.height;
+    distance = other.distance;
     histogram = other.histogram;
     cluster = other.cluster;
 
@@ -46,6 +48,7 @@ MRREMI007::Image &MRREMI007::Image::operator=(const Image &other)
     imageName = other.imageName;
     width = other.width;
     height = other.height;
+    distance = other.distance;
     histogram = other.histogram;
     cluster = other.cluster;
 
@@ -62,6 +65,7 @@ MRREMI007::Image::Image(Image &&other)
     imageName = other.imageName;
     width = other.width;
     height = other.height;
+    distance = other.distance;
     histogram = other.histogram;
     cluster = other.cluster;
 
@@ -79,6 +83,7 @@ MRREMI007::Image &MRREMI007::Image::operator=(Image &&other)
         imageName = other.imageName;
         width = other.width;
         height = other.height;
+        distance = other.distance;
         histogram = other.histogram;
         cluster = other.cluster;
 
@@ -126,34 +131,10 @@ void MRREMI007::Image::readFromFile(const std::string fileName)
             {
                 Pixel pixelVal(memblock[j], memblock[j + 1], memblock[j + 2]);
                 array.push_back(pixelVal);
-                // std::cout << "i " << i << " k " << k << std::endl;
-                // std::cout << image[i][k] << std::endl;
             }
             image.push_back(array);
-            // if (i > 1)
-            // {
-            //     std::cout << "<<<<<<<<<<<<PREVIOUS ROW <<<<<<<<<< " << i - 2 << std::endl;
-            //     for (int k = 0; k < width; k++)
-            //     {
-            //         std::cout << image[0][k]<< std::endl;
-            //         std::cout << "i " << i - 2 << " k " << k << std::endl;
-            //         std::cout << image[i - 2][k] << std::endl;
-            //     }
-            //     std::cout << "<<<<<<<<<<<<END<<<<<<<<<< " << std::endl;
-            // }
         }
         delete[] memblock;
-
-        // std::cout << ">>>>>>>>>>>>>>>>>>>BREAK>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
-        // for (int i = 0; i < height; i++)
-        // {
-        //     for (int j = 0; j < width; j++)
-        //     {
-        //         std::cout << "i " << i << " j " << j <<std::endl;
-        //         std::cout<< image[i][j] << std::endl;
-        //     }
-        // }
-
         inputFile.close();
     }
     else

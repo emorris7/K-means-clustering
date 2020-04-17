@@ -22,19 +22,16 @@ public:
 
     float distance(const Image &image, const std::vector<int> &centroid);
 
-    float distanceColour(const Image &image, const std::vector<int> &centroid);
-
     void makeCentroid(const int clusterNum);
 
     //forgy method
-    void makeClusters(const bool colourHist);
+    void makeClusters();
+
+    void initializeCentroids();
 
     void printToFile(const std::string fileName);
 
     friend std::ostream &operator<<(std::ostream &os, const ImageCluster &cluster);
-
-private:
-    std::vector<int> randomClusters();
 };
 
 std::ostream &operator<<(std::ostream &os, const ImageCluster &cluster);
