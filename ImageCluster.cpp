@@ -5,8 +5,7 @@
 #include "math.h"
 #include <iostream>
 #include <fstream>
-// #include <random>
-// #include <functional>
+
 
 MRREMI007::ImageCluster::ImageCluster() {}
 
