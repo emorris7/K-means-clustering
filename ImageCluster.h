@@ -20,7 +20,7 @@ public:
 
     ~ImageCluster();
 
-    float distance(const Image &image, const std::vector<int> &centroid);
+    float distance(const Image &image, const std::vector<int> &centroid) const;
 
     void makeCentroid(const int clusterNum);
 
@@ -30,7 +30,7 @@ public:
 
     void initializeCentroids();
 
-    void printToFile(const std::string fileName);
+    void printToFile(const std::string fileName) const;
 
     friend std::ostream &operator<<(std::ostream &os, const ImageCluster &cluster);
 };

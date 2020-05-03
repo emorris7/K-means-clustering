@@ -33,7 +33,7 @@ MRREMI007::ImageCluster::ImageCluster(const std::string directoryName, const int
 
 MRREMI007::ImageCluster::~ImageCluster() {}
 
-float MRREMI007::ImageCluster::distance(const Image &image, const std::vector<int> &centroid)
+float MRREMI007::ImageCluster::distance(const Image &image, const std::vector<int> &centroid) const
 {
     if (image.histogram.size() != centroid.size())
     {
@@ -213,7 +213,7 @@ void MRREMI007::ImageCluster::initializeRandomCentroids()
     }
 }
 
-void MRREMI007::ImageCluster::printToFile(const std::string fileName)
+void MRREMI007::ImageCluster::printToFile(const std::string fileName) const
 {
     std::ofstream file;
     file.open(fileName);

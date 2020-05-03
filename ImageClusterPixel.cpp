@@ -32,7 +32,7 @@ MRREMI007::ImageClusterPixel::ImageClusterPixel(const std::string directoryName,
 
 MRREMI007::ImageClusterPixel::~ImageClusterPixel() {}
 
-float MRREMI007::ImageClusterPixel::distance(const ImagePixel &image, const Pixel &centroid)
+float MRREMI007::ImageClusterPixel::distance(const ImagePixel &image, const Pixel &centroid) const
 {
     float total = std::pow(image.averagePixel.red - centroid.red, 2) + std::pow(image.averagePixel.green - centroid.green, 2) + std::pow(image.averagePixel.blue - centroid.blue, 2);
     float distance = std::sqrt(total);
@@ -198,7 +198,7 @@ void MRREMI007::ImageClusterPixel::initializeRandomCentroids()
     }
 }
 
-void MRREMI007::ImageClusterPixel::printToFile(const std::string fileName)
+void MRREMI007::ImageClusterPixel::printToFile(const std::string fileName) const
 {
     std::ofstream file;
     file.open(fileName);

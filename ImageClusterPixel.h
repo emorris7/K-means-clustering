@@ -20,7 +20,7 @@ public:
 
     ~ImageClusterPixel();
 
-    float distance(const ImagePixel &image, const Pixel &centroid);
+    float distance(const ImagePixel &image, const Pixel &centroid) const;
 
     void makeCentroid(const int clusterNum);
     
@@ -31,7 +31,7 @@ public:
 
     void initializeRandomCentroids();
 
-    void printToFile(const std::string fileName);
+    void printToFile(const std::string fileName) const;
 
     friend std::ostream &operator<<(std::ostream &os, const ImageClusterPixel &cluster);
 };
