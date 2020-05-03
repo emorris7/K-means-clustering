@@ -16,7 +16,7 @@ public:
 
     ImageCluster();
 
-    ImageCluster(const std::string directoryName, const int clusters, const int bin, const bool colourHist);
+    ImageCluster(const std::string directoryName, const int clusters, const int bin, const bool colourHist, const bool random);
 
     ~ImageCluster();
 
@@ -24,8 +24,9 @@ public:
 
     void makeCentroid(const int clusterNum);
 
-    //forgy method
-    void makeClusters();
+    void makeClusters(const bool random);
+
+    void initializeRandomCentroids();
 
     void initializeCentroids();
 

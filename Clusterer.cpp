@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
     int numClusters{-1};
     std::string outFile{};
     bool usePixel{false};
+    bool randomInitial{true};
     if (argc < 2)
     {
         std::cout << "Invalid run attempt, please supply directory path" << std::endl;
@@ -37,6 +38,10 @@ int main(int argc, char *argv[])
             if (std::string(argv[i]) == "-usePixel")
             {
                 usePixel = true;
+            }
+            if (std::string(argv[i]) == "-x")
+            {
+                randomInitial = false;
             }
         }
         //set default for cluster if it hasn't been specified
@@ -67,7 +72,7 @@ int main(int argc, char *argv[])
             {
                 binSize = 1;
             }
-            MRREMI007::ImageCluster cluster(argv[1], numClusters, binSize, colourHist);
+            MRREMI007::ImageCluster cluster(argv[1], numClusters, binSize, colourHist, randomInitial);
             //no file name specified
             if (outFile == "")
             {

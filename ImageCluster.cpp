@@ -6,10 +6,9 @@
 #include <iostream>
 #include <fstream>
 
-
 MRREMI007::ImageCluster::ImageCluster() {}
 
-MRREMI007::ImageCluster::ImageCluster(const std::string directoryName, const int clusters, const int bin, const bool colourHist)
+MRREMI007::ImageCluster::ImageCluster(const std::string directoryName, const int clusters, const int bin, const bool colourHist, const bool random)
 {
     numClusters = clusters;
     binSize = bin;
@@ -29,7 +28,7 @@ MRREMI007::ImageCluster::ImageCluster(const std::string directoryName, const int
             images.push_back(imageFile);
         }
     }
-    makeClusters();
+    makeClusters(random);
 }
 
 MRREMI007::ImageCluster::~ImageCluster() {}
@@ -104,17 +103,18 @@ void MRREMI007::ImageCluster::makeCentroid(const int cluster)
     }
 }
 
-void MRREMI007::ImageCluster::makeClusters()
+void MRREMI007::ImageCluster::makeClusters(const bool random)
 {
     if (numClusters > 0)
     {
-        // std::vector<int> randClusters = randomClusters();
-        // //assign the histograms of the randomly selected images as centroids for forgy initialization
-        // for (auto &i : randClusters)
-        // {
-        //     centroids.push_back(images[i].histogram);
-        // }
-        initializeCentroids();
+        if (random)
+        {
+            initializeRandomCentroids();
+        }
+        else
+        {
+            initializeCentroids();
+        }
 
         int numChanges{1};
         while (numChanges != 0)
@@ -155,7 +155,8 @@ void MRREMI007::ImageCluster::makeClusters()
     }
 }
 
-void MRREMI007::ImageCluster::initializeCentroids(){
+void MRREMI007::ImageCluster::initializeCentroids()
+{
     //choose random initial cluster
     std::srand(time(NULL));
     int i = rand() % images.size();
@@ -197,28 +198,31 @@ void MRREMI007::ImageCluster::initializeCentroids(){
     }
 };
 
-// std::vector<int> MRREMI007::ImageCluster::randomClusters()
-// {
-//     std::vector<int> randomClusters;
-//     std::srand(time(NULL));
-//     while (randomClusters.size() < numClusters)
-//     {
-//         int i = rand() % images.size();
-//         //check if the number of clusters is less than the number of images, else must allow duplicates
-//         if (randomClusters.size() < images.size())
-//         {
-//             if (std::find(randomClusters.begin(), randomClusters.end(), i) == randomClusters.end())
-//             {
-//                 randomClusters.push_back(i);
-//             }
-//         }
-//         else
-//         {
-//             randomClusters.push_back(i);
-//         }
-//     }
-//     return randomClusters;
-// }
+void MRREMI007::ImageCluster::initializeRandomCentroids()
+{
+    std::vector<int> randomClusters;
+    std::srand(time(NULL));
+    while (randomClusters.size() < numClusters)
+    {
+        int i = rand() % images.size();
+        //check if the number of clusters is less than the number of images, else must allow duplicates
+        if (randomClusters.size() < images.size())
+        {
+            if (std::find(randomClusters.begin(), randomClusters.end(), i) == randomClusters.end())
+            {
+                randomClusters.push_back(i);
+            }
+        }
+        else
+        {
+            randomClusters.push_back(i);
+        }
+    }
+    for (auto &i : randomClusters)
+    {
+        centroids.push_back(images[i].histogram);
+    }
+}
 
 void MRREMI007::ImageCluster::printToFile(const std::string fileName)
 {
