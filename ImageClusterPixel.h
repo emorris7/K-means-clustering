@@ -16,7 +16,7 @@ public:
 
     ImageClusterPixel();
 
-    ImageClusterPixel(const std::string directoryName, const int clusters);
+    ImageClusterPixel(const std::string directoryName, const int clusters, const bool random);
 
     ~ImageClusterPixel();
 
@@ -24,10 +24,12 @@ public:
 
     void makeCentroid(const int clusterNum);
     
-    void makeClusters();
+    void makeClusters(const bool random);
 
     //kmeans++ method
     void initializeCentroids();
+
+    void initializeRandomCentroids();
 
     void printToFile(const std::string fileName);
 

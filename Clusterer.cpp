@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         //Do clustering using average pixel feature
         if (usePixel)
         {
-            MRREMI007::ImageClusterPixel cluster(argv[1], numClusters);
+            MRREMI007::ImageClusterPixel cluster(argv[1], numClusters, randomInitial);
             //no file name specified
             if (outFile == "")
             {

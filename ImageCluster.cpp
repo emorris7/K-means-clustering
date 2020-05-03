@@ -89,17 +89,6 @@ void MRREMI007::ImageCluster::makeCentroid(const int cluster)
             }
             centroids[cluster] = cent;
         }
-        // //if centroid already exists for the cluster CHANGED
-        // if (centroids.size() > cluster )
-        // {
-        //     centroids[cluster] = cent;
-        // }
-        // else
-        // {
-        //     std::cout << "Error: Centroid " << cluster << " not yet initialized" << std::endl;
-        //     // std::cout << "Making centroid: " << cluster << std::endl;
-        //     // centroids.push_back(cent);
-        // }
     }
 }
 

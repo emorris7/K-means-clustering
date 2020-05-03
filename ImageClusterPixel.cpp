@@ -8,7 +8,7 @@
 
 MRREMI007::ImageClusterPixel::ImageClusterPixel() {}
 
-MRREMI007::ImageClusterPixel::ImageClusterPixel(const std::string directoryName, const int clusters)
+MRREMI007::ImageClusterPixel::ImageClusterPixel(const std::string directoryName, const int clusters, const bool random)
 {
     numClusters = clusters;
     //go through directory and make image objects
@@ -27,7 +27,7 @@ MRREMI007::ImageClusterPixel::ImageClusterPixel(const std::string directoryName,
             images.push_back(imageFile);
         }
     }
-    makeClusters();
+    makeClusters(random);
 }
 
 MRREMI007::ImageClusterPixel::~ImageClusterPixel() {}
@@ -75,12 +75,19 @@ void MRREMI007::ImageClusterPixel::makeCentroid(const int cluster)
     }
 }
 
-void MRREMI007::ImageClusterPixel::makeClusters()
+void MRREMI007::ImageClusterPixel::makeClusters(const bool random)
 {
     if (numClusters > 0)
     {
-        //k++
-        initializeCentroids();
+        if (random)
+        {
+            initializeRandomCentroids();
+        }
+        else
+        {
+            //k++
+            initializeCentroids();
+        }
 
         int numChanges{1};
         while (numChanges != 0)
@@ -162,6 +169,32 @@ void MRREMI007::ImageClusterPixel::initializeCentroids()
         }
         //the average pixel of this image is now the new centroid
         centroids.push_back(newCentroid.averagePixel);
+    }
+}
+
+void MRREMI007::ImageClusterPixel::initializeRandomCentroids()
+{
+    std::vector<int> randomClusters;
+    std::srand(time(NULL));
+    while (randomClusters.size() < numClusters)
+    {
+        int i = rand() % images.size();
+        //check if the number of clusters is less than the number of images, else must allow duplicates
+        if (randomClusters.size() < images.size())
+        {
+            if (std::find(randomClusters.begin(), randomClusters.end(), i) == randomClusters.end())
+            {
+                randomClusters.push_back(i);
+            }
+        }
+        else
+        {
+            randomClusters.push_back(i);
+        }
+    }
+    for (auto &i : randomClusters)
+    {
+        centroids.push_back(images[i].averagePixel);
     }
 }
 
