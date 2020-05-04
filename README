@@ -1,0 +1,31 @@
+NOTE: The two image clusterers must be run on a linux based system as, according to some internet research, the method used for traversing the given directory does not work on windows.
+
+The K-means clustering has been implemented uses Lloyds algorithm.
+The clustering initilaization is done by random, but there is the option to change the initialzation method to kmeans++ which aims to maximise the distance between centroids
+For the histogram image feature, euclidean distance is used to calculate the distance between the histograms. 
+
+Extra Image Feature:
+The extra image feature that I have implemented is an average pixel. The average RGB pixel is calculated by averaging all the non-black pixels in the image.
+This is a good image feature, as it is independent of the orientation or size of the image. Each set of numbers is also uniquely defined by its colour, so it makes sense to cluster based on the average colour.
+The black pixels are ignored when taking the average so as tp get a clearer view of the actual average colour pixel of the number.
+I could not find any evidence of average RGB pixels being used as an image feature for clustering images, but I was inspired by methods used for image segmentation.
+The following are the websites that I used to research image segmentation:
+https://www.imageeprocessing.com/2017/12/k-means-clustering-on-rgb-image.html
+https://towardsdatascience.com/introduction-to-image-segmentation-with-k-means-clustering-83fd0a9e2fc3
+
+To compile:
+-Run 'make' in base directory
+
+To run:
+-For basic, default functionality, run './Clusterer <path for directory that contains images>'
+Optional parameters:
+-o <filename>: name of file for output to be written to (default is to write to the console)
+-bin <bin size>: size of bins for histogram (default is 1)
+-k <number of clusters>: number of clusters to be used (default is 10)
+-colour: use colour histogram instead of greyscale histogram (default is to use a greyscale histogram)
+-usePixel: use the average pixel image feature for clustering (default is to use the histogram image feature)
+-x: change the method of selecting initial clusters to the kmeans++ method (defualt is by random intialization)
+
+To remove object files and executable:
+-Run 'make clean' in the base directory
+
