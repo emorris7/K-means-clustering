@@ -1,4 +1,3 @@
-# K-means Clustering
 This project explores the use of a simple unsupervised classification scheme – K-means clustering – to classify images into different categories/types. The basic implementation performs clustering based on intensity (greyscale) histograms. An additional implementation uses a custom image feature. 
 
 NOTE: The two image clusterers must be run on a linux based system as, according to some internet research, the method used for traversing the given directory does not work on windows.
